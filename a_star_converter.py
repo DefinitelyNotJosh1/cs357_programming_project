@@ -25,31 +25,39 @@ def getInput():
     file_name = json_file.split(".")[0].split("\\")[-1]
     print(f"File name: {file_name}")
     
+    # Try to parse the file
     try:
         with open(json_file, "r") as file:
             data = json.load(file)
             return data["states"], data["alphabet"], data["initial"], data["accepting"], file_name
     except (json.JSONDecodeError, KeyError) as e:
-        print(f"Error reading {json_file}: {e}")
+        print(f"Error: unable to parse {e} in {json_file}")
         print("Please place a valid DFA or NFA in JSON format into the input folder.")
         exit()
 
 
 # Originally was going to increment all states, but it's easier to just 
-# make the previous start state q01, and new start state q0
-def addStartState(states, intitial):
+# make the previous q0 state to q01, and new start state q0. 
+# Make sure to update accepting states.
+def addStartState(states, initial, accepting):
     newStates = []
-    newStates.append({"state": "q0", "epsilon": "q01"})
+    oldStartState = initial
+    if oldStartState == "q0":
+        oldStartState = "q01"
+    newStates.append({"state": "q0", "epsilon": oldStartState})
     for state in states:
-        if state["state"] == intitial:
-            newStates.append({"state": "q01", "a": state["a"], "b": state["b"]})
+        if state["state"] == "q0":
+            if state["state"] in accepting:
+                accepting.append("q01")
+            state["state"] = "q01"
+            newStates.append(state)
         else:
             newStates.append(state)
     
-    return newStates
+    return newStates, accepting
 
 
-# Add epsilon transition to accepting states
+# Add epsilon transition to accepting states, as well as update accepting states
 def addEpsilon(states, accepting):
     newStates = []
     for state in states:
@@ -61,7 +69,10 @@ def addEpsilon(states, accepting):
         else:
             newStates.append(state)
     
-    return newStates
+    if "q0" not in accepting:
+        accepting.append("q0")
+    
+    return newStates, accepting
 
 
 # Writes new NFA to json file
@@ -80,12 +91,10 @@ def Main():
         exit()
 
     # Add start state
-    newStates = addStartState(states, initial)
-    # print(newStates)
+    newStates, accepting = addStartState(states, initial, accepting)
 
     # Add epsilon transition to accepting states
-    newStates = addEpsilon(newStates, accepting)
-    # print(newStates)
+    newStates, accepting = addEpsilon(newStates, accepting)
 
     # Write to file
     writeToFile(newStates, alphabet, initial, accepting, file_name)
