@@ -6,8 +6,7 @@
         },
         {
             "state": "q01",
-            "a": "q1",
-            "epsilon": "q01"
+            "a": "q1"
         },
         {
             "state": "q1",
@@ -20,7 +19,6 @@
     "initial": "q0",
     "accepting": [
         "q1",
-        "q01",
         "q0"
     ]
 }

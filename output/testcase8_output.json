@@ -1,0 +1,36 @@
+{
+    "states": [
+        {
+            "state": "q2",
+            "epsilon": "q21"
+        },
+        {
+            "state": "q0",
+            "a": "q21"
+        },
+        {
+            "state": "q1",
+            "b": "q3"
+        },
+        {
+            "state": "q21",
+            "b": [
+                "q0",
+                "q1"
+            ]
+        },
+        {
+            "state": "q3",
+            "epsilon": "q21"
+        }
+    ],
+    "alphabet": [
+        "a",
+        "b"
+    ],
+    "initial": "q2",
+    "accepting": [
+        "q3",
+        "q2"
+    ]
+}

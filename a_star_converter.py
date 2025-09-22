@@ -6,10 +6,13 @@
 import numpy as np
 import json
 import glob
+import string
 
 
 # get input from json file
 def getInput():
+
+    inputs = []
     # Find all JSON files in the input folder
     json_files = glob.glob("input/*.json")
     
@@ -17,60 +20,95 @@ def getInput():
         print("Please place a valid DFA or NFA in JSON format into the input folder.")
         exit()
     
-    # Use the first JSON file found
-    json_file = json_files[0]
-    print(f"Reading from: {json_file}")
+    # Go through all JSON files
+    for json_file in json_files:
+        # print(f"Reading from: {json_file}")
+        file_name = json_file.split(".")[0].split("\\")[-1]
+        # print(f"File name: {file_name}")
+        try:
+            with open(json_file, "r") as file:
+                data = json.load(file)
+                inputs.append([data["states"], data["alphabet"], data["initial"], data["accepting"], file_name])
+        except (json.JSONDecodeError, KeyError) as e:
+            print(f"Error: unable to parse {e} in {json_file}")
+            if json_file == json_files[-1]:
+                print("Please place a valid DFA or NFA in JSON format into the input folder.")
+            else:
+                print(f"Skipping file {json_file}")
+                continue
+        
+    return inputs
+                
 
     # Get the file name without the path
-    file_name = json_file.split(".")[0].split("\\")[-1]
-    print(f"File name: {file_name}")
+    # file_name = json_file.split(".")[0].split("\\")[-1]
+    # print(f"File name: {file_name}")
     
-    # Try to parse the file
-    try:
-        with open(json_file, "r") as file:
-            data = json.load(file)
-            return data["states"], data["alphabet"], data["initial"], data["accepting"], file_name
-    except (json.JSONDecodeError, KeyError) as e:
-        print(f"Error: unable to parse {e} in {json_file}")
-        print("Please place a valid DFA or NFA in JSON format into the input folder.")
-        exit()
+    # # Try to parse the file
+    # try:
+    #     with open(json_file, "r") as file:
+    #         data = json.load(file)
+    #         return data["states"], data["alphabet"], data["initial"], data["accepting"], file_name
+    # except (json.JSONDecodeError, KeyError) as e:
+    #     print(f"Error: unable to parse {e} in {json_file}")
+    #     print("Please place a valid DFA or NFA in JSON format into the input folder.")
+    #     exit()
 
 
 # Originally was going to increment all states, but it's easier to just 
-# make the previous q0 state to q01, and new start state q0. 
+# make the previous start state startState + a, and new start state the previous start state.
+# Ex: if q0 is the start state, make the new start state q0 and the old start state q01.
 # Make sure to update accepting states.
 def addStartState(states, initial, accepting):
     newStates = []
-    oldStartState = initial
-    if oldStartState == "q0":
-        oldStartState = "q01"
-    newStates.append({"state": "q0", "epsilon": oldStartState})
+
+    newStartState = initial
+    # Make old start state "qX1"
+    oldStartState = initial + "1"
+
+    # Add epsilon transition from new start state to old start state
+    newStates.append({"state": newStartState, "epsilon": oldStartState})
     for state in states:
-        if state["state"] == "q0":
+        # If the state is an accepting state, add the new start state to accepting states
+        # Now find the old start state
+        if state["state"] == newStartState:
+            # If the old start state is an accepting state, add the new start state to accepting states
             if state["state"] in accepting:
-                accepting.append("q01")
-            state["state"] = "q01"
+                accepting.append(oldStartState)
+            # Now re-label the old start state
+            state["state"] = oldStartState
             newStates.append(state)
         else:
             newStates.append(state)
-    
+
+    # Update all old transitions 
+    for state in newStates:
+        if state["state"] == newStartState:
+            continue
+        for key, value in list(state.items()):
+            if isinstance(value, list):
+                state[key] = [oldStartState if v == newStartState else v for v in value]
+            elif value == newStartState:
+                state[key] = oldStartState
+
     return newStates, accepting
 
 
 # Add epsilon transition to accepting states, as well as update accepting states
-def addEpsilon(states, accepting):
+def addEpsilon(states, initial, accepting):
     newStates = []
     for state in states:
         if state["state"] in accepting:
             # For accepting states, add epsilon transition to q01
             newState = state.copy()  # Copy the existing state
-            newState["epsilon"] = "q01"  # Add epsilon transition to q01
+            newState["epsilon"] = initial + "1"  # Add epsilon transition to q01
             newStates.append(newState)
         else:
             newStates.append(state)
-    
-    if "q0" not in accepting:
-        accepting.append("q0")
+
+       # Add new start state to accepting states
+    if initial not in accepting:
+        accepting.append(initial)
     
     return newStates, accepting
 
@@ -84,22 +122,26 @@ def writeToFile(states, alphabet, initial, accepting, file_name):
 
 # Main function, just runs everything.
 def Main():
+
+    print("|---------------------------------|")
+    print("|      Starting A* Converter      |")
+    print("|---------------------------------|")
     # Get input
-    states, alphabet, initial, accepting, file_name = getInput()
-    if states is (None or "") or alphabet is (None or "") or initial is (None or "") or accepting is None:
-        print("Unable to parse file. Please place a valid DFA or NFA in JSON format into the input folder.")
-        exit()
+    inputs = getInput()
+    for input in inputs:
+        print(f"Processing file: {input[4]}")
+        states, alphabet, initial, accepting, file_name = input
 
-    # Add start state
-    newStates, accepting = addStartState(states, initial, accepting)
+        # Add start state
+        newStates, accepting = addStartState(states, initial, accepting)
 
-    # Add epsilon transition to accepting states
-    newStates, accepting = addEpsilon(newStates, accepting)
+        # Add epsilon transition to accepting states
+        newStates, accepting = addEpsilon(newStates, initial, accepting)
 
-    # Write to file
-    writeToFile(newStates, alphabet, initial, accepting, file_name)
-    print("Written to file: output/output_" + file_name)
-    print("Done")
+        # Write to file
+        writeToFile(newStates, alphabet, initial, accepting, file_name)
+        print("Written to file: output/output_" + file_name)
+        print("Done")
 
 # Call main function
 Main()
