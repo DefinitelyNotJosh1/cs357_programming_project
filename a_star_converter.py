@@ -31,28 +31,13 @@ def getInput():
                 inputs.append([data["states"], data["alphabet"], data["initial"], data["accepting"], file_name])
         except (json.JSONDecodeError, KeyError) as e:
             print(f"Error: unable to parse {e} in {json_file}")
-            if json_file == json_files[-1]:
-                print("Please place a valid DFA or NFA in JSON format into the input folder.")
-            else:
-                print(f"Skipping file {json_file}")
-                continue
-        
-    return inputs
-                
-
-    # Get the file name without the path
-    # file_name = json_file.split(".")[0].split("\\")[-1]
-    # print(f"File name: {file_name}")
+            print(f"Skipping file {json_file}")
     
-    # # Try to parse the file
-    # try:
-    #     with open(json_file, "r") as file:
-    #         data = json.load(file)
-    #         return data["states"], data["alphabet"], data["initial"], data["accepting"], file_name
-    # except (json.JSONDecodeError, KeyError) as e:
-    #     print(f"Error: unable to parse {e} in {json_file}")
-    #     print("Please place a valid DFA or NFA in JSON format into the input folder.")
-    #     exit()
+    if len(inputs) == 0:
+        print("Please place a valid DFA or NFA in JSON format into the input folder.")
+        exit()
+    
+    return inputs
 
 
 # Originally was going to increment all states, but it's easier to just 
