@@ -6,10 +6,17 @@
 import numpy as np
 import json
 import glob
-import string
 
 
-# get input from json file
+##
+# getInput
+# Description: Get input from JSON files in the input folder, also does error checking
+#
+# Parameters:  
+#       None
+# Returns: 
+#       List of lists, each containing the states, alphabet, initial state, accepting states, and file name
+##
 def getInput():
 
     inputs = []
@@ -40,10 +47,20 @@ def getInput():
     return inputs
 
 
-# Originally was going to increment all states, but it's easier to just 
-# make the previous start state startState + a, and new start state the previous start state.
-# Ex: if q0 is the start state, make the new start state q0 and the old start state q01.
-# Make sure to update accepting states.
+##
+# addStartState
+# Description: Adds a new start state to the NFA/DFA, updates the states and accepting states accordingly
+# Makes the new start state the name of the original start state (e.g. q0), and makes the old start state 
+# the name of the original start state plus 1 (e.g. q01).
+#
+# Parameters:  
+#       states: Dictionary of the states and their transitions in the NFA
+#       initial: The initial state of the NFA
+#       accepting: The accepting states of the NFA
+# Returns: 
+#       newStates: Dictionary of the states and their transitions in the NFA with the new start state
+#       accepting: The accepting states of the NFA with the new start state
+##
 def addStartState(states, initial, accepting):
     newStates = []
 
@@ -79,6 +96,18 @@ def addStartState(states, initial, accepting):
     return newStates, accepting
 
 
+##
+# addEpsilon
+# Description: Adds an epsilon transition to the accepting states, as well as updates accepting states
+#
+# Parameters:  
+#       states: Dictionary of the states and their transitions in the NFA
+#       initial: The (old) initial state of the NFA
+#       accepting: The accepting states of the NFA
+# Returns: 
+#       newStates: Dictionary of the states and their transitions in the NFA with the new transitions
+#       accepting: The updated accepting states of the NFA
+##
 # Add epsilon transition to accepting states, as well as update accepting states
 def addEpsilon(states, initial, accepting):
     newStates = []
@@ -98,14 +127,35 @@ def addEpsilon(states, initial, accepting):
     return newStates, accepting
 
 
-# Writes new NFA to json file
+##
+# writeToFile
+# Description: Writes new NFA to json file
+#
+# Parameters:  
+#       states: Dictionary of the states and their transitions in the NFA
+#       alphabet: The alphabet of the NFA
+#       initial: The initial state of the NFA
+#       accepting: The accepting states of the NFA
+#       file_name: The name of the file to write to
+# Returns: 
+#       None
+##
+##
 def writeToFile(states, alphabet, initial, accepting, file_name):
     with open("output/" + file_name + "_output.json", "w") as file:
         json.dump({"states": states, "alphabet": alphabet, "initial": initial, "accepting": accepting}, file, indent=4)
 
 
 
-# Main function, just runs everything.
+##
+# Main
+# Description: Main function, just runs everything.
+#
+# Parameters:  
+#       None
+# Returns: 
+#       None
+##
 def Main():
 
     print("|---------------------------------|")
