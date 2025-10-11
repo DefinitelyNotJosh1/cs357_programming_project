@@ -5,7 +5,6 @@
         {"state": "q2", "a": ["q3"], "b": ["q3"]},
         {"state": "q3", "a": ["q3"], "b": ["q3"]}
     ],
-    "alphabet": ["a", "b"],
     "initial": "q0",
     "accepting": ["q2"]
 }

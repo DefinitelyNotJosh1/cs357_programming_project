@@ -3,7 +3,6 @@
 # Author: Joshua Krasnogorov
 # CS357 Programming Project
 
-import numpy as np
 import json
 import glob
 
@@ -15,7 +14,7 @@ import glob
 # Parameters:  
 #       None
 # Returns: 
-#       List of lists, each containing the states, alphabet, initial state, accepting states, and file name
+#       List of lists, each containing the states, initial state, accepting states, and file name
 ##
 def getInput():
 
@@ -35,7 +34,7 @@ def getInput():
         try:
             with open(json_file, "r") as file:
                 data = json.load(file)
-                inputs.append([data["states"], data["alphabet"], data["initial"], data["accepting"], file_name])
+                inputs.append([data["states"], data["initial"], data["accepting"], file_name])
         except (json.JSONDecodeError, KeyError) as e:
             print(f"Error: unable to parse {e} in {json_file}")
             print(f"Skipping file {json_file}")
@@ -133,7 +132,6 @@ def addEpsilon(states, initial, accepting):
 #
 # Parameters:  
 #       states: Dictionary of the states and their transitions in the NFA
-#       alphabet: The alphabet of the NFA
 #       initial: The initial state of the NFA
 #       accepting: The accepting states of the NFA
 #       file_name: The name of the file to write to
@@ -141,9 +139,9 @@ def addEpsilon(states, initial, accepting):
 #       None
 ##
 ##
-def writeToFile(states, alphabet, initial, accepting, file_name):
+def writeToFile(states, initial, accepting, file_name):
     with open("output/" + file_name + "_output.json", "w") as file:
-        json.dump({"states": states, "alphabet": alphabet, "initial": initial, "accepting": accepting}, file, indent=4)
+        json.dump({"states": states, "initial": initial, "accepting": accepting}, file, indent=4)
 
 
 
@@ -164,8 +162,8 @@ def Main():
     # Get input
     inputs = getInput()
     for input in inputs:
-        print(f"Processing file: {input[4]}")
-        states, alphabet, initial, accepting, file_name = input
+        print(f"Processing file: {input[3]}")
+        states, initial, accepting, file_name = input
 
         # Add start state
         newStates, accepting = addStartState(states, initial, accepting)
@@ -174,7 +172,7 @@ def Main():
         newStates, accepting = addEpsilon(newStates, initial, accepting)
 
         # Write to file
-        writeToFile(newStates, alphabet, initial, accepting, file_name)
+        writeToFile(newStates, initial, accepting, file_name)
         print("Written to file: output/output_" + file_name)
         print("Done")
 

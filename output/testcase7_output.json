@@ -43,10 +43,6 @@
             "epsilon": "q01"
         }
     ],
-    "alphabet": [
-        "0",
-        "1"
-    ],
     "initial": "q0",
     "accepting": [
         "q0",

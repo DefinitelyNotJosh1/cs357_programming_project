@@ -7,7 +7,6 @@
     {"state": "q4", "C":"q4"},
     {"state": "q5", "B":"q2"}
   ],
-  "alphabet": ["A", "B", "C", "D"],
   "initial": "q0",
   "accepting": ["q2", "q3", "q4"]
 }

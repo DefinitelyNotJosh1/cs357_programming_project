@@ -42,10 +42,6 @@
             ]
         }
     ],
-    "alphabet": [
-        "a",
-        "b"
-    ],
     "initial": "q0",
     "accepting": [
         "q2",

@@ -1,3 +1,6 @@
+
+
+
 {
     "states": [
         {
@@ -12,9 +15,6 @@
             "state": "q1",
             "epsilon": "q01"
         }
-    ],
-    "alphabet": [
-        "a"
     ],
     "initial": "q0",
     "accepting": [
