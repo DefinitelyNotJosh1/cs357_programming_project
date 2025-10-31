@@ -38,7 +38,45 @@ def getInput():
         except (json.JSONDecodeError, KeyError) as e:
             print(f"Error: unable to parse {e} in {json_file}")
             print(f"Skipping file {json_file}")
-    
+        
+        # Now do error checking, make sure the intial state and accepting states are in the states list            
+        states, initial, accepting, file_name = inputs[-1]
+
+        # Check that all transitions include states that are in the states list
+        valid = True
+        for state in states:
+            for key, value in state.items():
+                # If the value is a list, check if all the states in the list are in the states list
+                if isinstance(value, list):
+                    for v in value:
+                        if v not in [state["state"] for state in states]:
+                            print(f"Error: transition {key} {v} not in states list for file {json_file}")
+                            inputs.pop()
+                            valid = False
+                            break
+                    continue
+                # If the value is not a list, check if the state is in the states list
+                if key != "state" and value not in [state["state"] for state in states]:
+                    print(f"Error: transition {key} {value} not in states list for file {json_file}")
+                    inputs.pop()
+                    valid = False
+        
+        if not valid:
+            continue
+
+        # Check if the initial state is in the states list
+        if initial not in [state["state"] for state in states]:
+            print(f"Error: initial state {initial} not in states list for file {json_file}")
+            inputs.pop()
+            continue
+
+        # Check if the accepting states are in the states list
+        if not any(state in accepting for state in [state["state"] for state in states]):
+            print(f"Error: accepting state {accepting} not in states list for file {json_file}")
+            inputs.pop()
+            continue
+
+    # If there are no valid inputs, exit
     if len(inputs) == 0:
         print("Please place a valid DFA or NFA in JSON format into the input folder.")
         exit()
@@ -119,7 +157,7 @@ def addEpsilon(states, initial, accepting):
         else:
             newStates.append(state)
 
-       # Add new start state to accepting states
+    # Add initial state to accepting states
     if initial not in accepting:
         accepting.append(initial)
     
