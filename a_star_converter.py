@@ -60,10 +60,11 @@ def getInput():
                     print(f"Error: transition {key} {value} not in states list for file {json_file}")
                     inputs.pop()
                     valid = False
+                    break
         
         if not valid:
             continue
-
+        
         # Check if the initial state is in the states list
         if initial not in [state["state"] for state in states]:
             print(f"Error: initial state {initial} not in states list for file {json_file}")
