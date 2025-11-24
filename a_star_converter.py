@@ -149,11 +149,23 @@ def addStartState(states, initial, accepting):
 # Add epsilon transition to accepting states, as well as update accepting states
 def addEpsilon(states, initial, accepting):
     newStates = []
+    target_state = initial + "1"
     for state in states:
         if state["state"] in accepting:
             # For accepting states, add epsilon transition to q01
             newState = state.copy()  # Copy the existing state
-            newState["epsilon"] = initial + "1"  # Add epsilon transition to q01
+            
+            if "epsilon" in newState:
+                existing = newState["epsilon"]
+                if isinstance(existing, list):
+                    if target_state not in existing:
+                        existing.append(target_state)
+                else:
+                    if existing != target_state:
+                        newState["epsilon"] = [existing, target_state]
+            else:
+                newState["epsilon"] = target_state  # Add epsilon transition to q01
+                
             newStates.append(newState)
         else:
             newStates.append(state)
